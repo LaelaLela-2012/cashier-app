@@ -46,7 +46,8 @@ export default class ListCategories extends Component {
                     {categories && categories.map((category) => (
                         <ListGroup.Item key={category.id}
                             onClick={() => changeCategory(category.nama)}
-                            className={categoryYangDipilih === category.nama && "category-aktif"}>
+                            className={categoryYangDipilih === category.nama && "category-aktif"}
+                           style={{cursor:'pointer'}}>
                             <h5>
                                 <Icon nama={category.nama} /> {category.nama}
                             </h5>

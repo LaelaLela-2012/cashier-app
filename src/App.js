@@ -3,6 +3,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 import {Hasil, ListCategories, Menus, NavbarComponent} from './components';
 import { API_URL } from './utils/constants';
 import axios from 'axios';
+import swal from 'sweetalert'
 
 export default class App extends Component {
   constructor(props) {
@@ -10,7 +11,8 @@ export default class App extends Component {
   
     this.state = {
       menus: [],
-      categoryYangDipilih: 'Makanan'
+      categoryYangDipilih: 'Makanan',
+      keranjangs: []
     }
   }
 
@@ -44,6 +46,29 @@ export default class App extends Component {
     
   }
 
+  masukKeranjang = (value) => {
+
+    const keranjang = {
+      jumlah: 1,
+      total_harga: value.harga,
+      product: value
+    }
+
+    axios
+      .post(API_URL+'keranjangs', keranjang)
+      .then(res => {
+        swal({
+          title: "Sukses Masuk Keranjang",
+          text: "Sukses masuk keranjang "+keranjang.product.nama,
+          icon: "success",
+          button: false,
+        });
+      })
+      .catch(error => {
+        console.log("Error yaaaaaaa, kasian deh lu!.. wkwkwkwk", error);
+      })
+  }
+
   render() {
     const { menus, categoryYangDipilih } = this.state
     return (
@@ -61,6 +86,7 @@ export default class App extends Component {
                     <Menus
                       key={menu.id}
                       menu={menu}
+                      masukKeranjang={this.masukKeranjang}
                     />
                   ))}
                 </Row>
