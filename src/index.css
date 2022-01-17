@@ -13,7 +13,10 @@ body {
   background: #1b628e;
   color: #fff;
 }
-
+.btn-primary{
+  background: #1b628e;
+  color: #fff;
+}
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
