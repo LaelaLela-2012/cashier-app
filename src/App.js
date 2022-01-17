@@ -18,16 +18,40 @@ export default class App extends Component {
 
   componentDidMount() {
     axios
-      .get(API_URL+'products?category.nama='+this.state.categoryYangDipilih)
-      .then(res => {
+      .get(API_URL + 'products?category.nama=' + this.state.categoryYangDipilih)
+      .then((res) => {
         const menus = res.data;
         this.setState({ menus });
       })
-      .catch(error => {
-        console.log("Error yaaaaaaa, kasian deh lu!.. wkwkwkwk", error);
-    })
+      .catch((error) => {
+        console.log("Error yaaaaaaa?", error);
+      });
+    
+    axios
+      .get(API_URL + 'keranjangs')
+      .then((res) => {
+        const keranjangs = res.data;
+        this.setState({ keranjangs });
+      })
+      .catch((error) => {
+        console.log("Error yaaaaaaa?", error);
+      });
   }
   
+  componentDidUpdate(prevState) {
+    if (this.state.keranjangs !== prevState.keranjangs) {
+      axios
+      .get(API_URL + 'keranjangs')
+      .then((res) => {
+        const keranjangs = res.data;
+        this.setState({ keranjangs });
+      })
+      .catch((error) => {
+        console.log("Error yaaaaaaa?", error);
+      });
+    }
+  }
+
   changeCategory = (value) => {
     this.setState({
       categoryYangDipilih: value,
@@ -35,42 +59,71 @@ export default class App extends Component {
     })
       
     axios
-      .get(API_URL+'products?category.nama='+value)
-      .then(res => {
+      .get(API_URL + 'products?category.nama=' + value)
+      .then((res) => {
         const menus = res.data;
         this.setState({ menus });
       })
-      .catch(error => {
-        console.log("Error yaaaaaaa, kasian deh lu!.. wkwkwkwk", error);
-      })
-    
-  }
+      .catch((error) => {
+        console.log("Error yaaaaaaa?", error);
+      });
+  };
 
   masukKeranjang = (value) => {
-
-    const keranjang = {
-      jumlah: 1,
-      total_harga: value.harga,
-      product: value
-    }
-
     axios
-      .post(API_URL+'keranjangs', keranjang)
-      .then(res => {
-        swal({
-          title: "Sukses Masuk Keranjang",
-          text: "Sukses masuk keranjang "+keranjang.product.nama,
-          icon: "success",
-          button: false,
-        });
+      .get(API_URL + 'keranjangs?product.id=' + value.id)
+      .then((res) => {
+        if (res.data.length === 0) {
+          const keranjang = {
+            jumlah: 1,
+            total_harga: value.harga,
+            product: value,
+          };
+
+          axios
+            .post(API_URL + 'keranjangs', keranjang)
+            .then((res) => {
+              swal({
+                title: "Sukses Masuk Keranjang",
+                text: "Sukses masuk keranjang " + keranjang.product.nama,
+                icon: "success",
+                button: false,
+                timer: 1000,
+              });
+            })
+            .catch((error) => {
+              console.log("Error yaaaaaaa?", error);
+            });
+        } else {
+           const keranjang = {
+            jumlah: res.data[0].jumlah+1,
+            total_harga: res.data[0].total_harga+value.harga,
+            product: value,
+           };
+          
+          axios
+            .put(API_URL + 'keranjangs/' + res.data[0].id, keranjang)
+            .then((res) => {
+              swal({
+                title: "Sukses Masuk Keranjang",
+                text: "Sukses masuk keranjang " + keranjang.product.nama,
+                icon: "success",
+                button: false,
+                timer: 1000,
+              });
+            })
+            .catch((error) => {
+              console.log("Error yaaaaaaa?", error);
+          });
+        }
       })
-      .catch(error => {
-        console.log("Error yaaaaaaa, kasian deh lu!.. wkwkwkwk", error);
+      .catch((error) => {
+        console.log("Error yaaaaaaa?", error);
       })
   }
 
   render() {
-    const { menus, categoryYangDipilih } = this.state
+    const { menus, categoryYangDipilih, keranjangs } = this.state;
     return (
       <div className="App">
       <NavbarComponent />
@@ -91,7 +144,7 @@ export default class App extends Component {
                   ))}
                 </Row>
             </Col>
-            <Hasil />
+            <Hasil keranjangs={keranjangs} />
           </Row>
         </Container>
       </div>
